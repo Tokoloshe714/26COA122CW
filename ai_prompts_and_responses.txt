@@ -1,3 +1,7 @@
+*Note that some of the code would not copy easily. The AI never gave me full sections of code that i could just use.
+*It did give me some example uses of libraries when i asked. If this concerns you(the marker/moderator), and you wish to see everything it gave me then
+*please contact me via my student email. I will be more than happy to show you the full response should you wish.
+
 [me]
 
 i am making a tool rental system using google colab notebook.
@@ -80,3 +84,73 @@ ordinary functions
 a list of dictionaries (or a small DataFrame)
 ipywidgets objects and their .observe() callbacks
 No classes are required at all.
+
+[me]
+
+could you explain to me how the rapidfuzz library works as i have never used it
+
+[grok.com]
+
+rapidfuzz is a fast library for fuzzy string matching.
+
+It tells you how similar two strings are, even when they are not identical (typos, extra words, missing letters, different word order, etc.).It returns a score from 0 to 100:
+100 = perfect match
+0 = completely different
+Values in between show partial similarity
+Core ideas you will actually use1. Basic similarity scores (rapidfuzz.fuzz)Pythonfrom rapidfuzz import fuzzCommon scorers:
+FunctionWhat it doesBest forfuzz.ratio(a, b)Overall similarity (order-sensitive)Exact-ish matchesfuzz.partial_ratio(a, b)Best matching substringWhen the query is shorter than the targetfuzz.token_sort_ratio(a, b)Ignores word order"hammer drill" vs "drill hammer"fuzz.WRatio(a, b)Smart combination of the above (recommended default)Most real-world casesExample:Pythonfuzz.WRatio("hammer", "hamer")          # ~90
+fuzz.WRatio("power drill", "drill power")  # 100 (token_sort helps)
+fuzz.WRatio("circular saw", "saw")      # high (partial match)2. Searching a list of candidates (rapidfuzz.process)This is the most useful part for your tool search:Pythonfrom rapidfuzz import processPython# tools is a list of strings (or you can extract the name/description)
+matches = process.extract(
+    query,                  # what the user typed
+    choices,                # list of tool names (or other attributes)
+    scorer=fuzz.WRatio,     # which scoring method
+    limit=10                # how many results to return
+)It returns a list of tuples sorted by score (best first):Python[
+  ("Hammer Drill", 95, 3),   # (matched string, score, original index)
+  ("Hand Hammer", 78, 12),
+  ...
+]There is also process.extractOne(...) if you only want the single best match.How you would typically use it in your rental system
+User types in the search box → you get the current query.
+You decide which attribute(s) to search (name, category, description…).
+You call process.extract (or a small loop with fuzz.WRatio) against those attributes.
+You sort the tools by the highest score they received.
+You display the ranked list.
+Because you have fewer than 100 tools, even a simple loop is extremely fast, so real-time updates feel instant.Minimal mental model
+
+fuzz.* → “How similar are these two strings?”
+process.extract → “Find the best matches from this list and rank them.”
+That’s really all you need for your use case.
+
+You can start with just fuzz.WRatio + a simple loop, or jump straight to process.extract — both are fine.
+
+[me]
+
+when using process.extract can i pass multiple attributes for my list of tools or just one attribute at a time.
+
+[grok.com]
+
+Short answer:
+
+process.extract works on one string per item.
+
+You cannot directly hand it multiple attributes at once.Practical ways to handle multiple attributesOption 1 – Search one attribute at a time (most common & clearest)
+
+Run process.extract (or a simple loop) separately on each attribute you care about, then take the highest score each tool received.textscore_name        = ...
+score_category    = ...
+score_description = ...
+final_score = max(score_name, score_category, score_description)This is usually the cleanest approach.Option 2 – Combine the attributes into one string
+
+Create a temporary searchable string for each tool, for example:text"Hammer Drill | Power Tools | Corded hammer drill for concrete"Then run process.extract once against that combined string.
+
+Simple, but less precise (a match in the description can rank as high as a match in the name).Option 3 – Use a processor function
+
+process.extract accepts a processor argument.
+
+You can write a small function that receives the whole tool dictionary and returns the string you want to compare (e.g. just the name, or a combination).
+
+Still only one string is scored per tool.Recommendation for your caseWith fewer than 100 tools, Option 1 is the best:
+Keep full control over which attributes matter more.
+You can easily give higher weight to the tool name if you want.
+The ranking logic stays easy to understand and debug.
+So: process.extract itself is single-attribute, but you combine the results yourself.
