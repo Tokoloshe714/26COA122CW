@@ -338,3 +338,44 @@ That’s why people put the starting call (`menu()`, `main()`, etc.) inside that
 - The colon and indentation work exactly like any other `if` statement.
 
 That’s the standard, widely used way to mark the entry point of a Python program.
+
+
+
+
+*******************************************************************************************************************************************************************
+
+
+
+[me]
+
+i am running into some of my functions being called undefined. are separate cells considered different files. how does the scope of different cells in colab work. i need functions from one cell to work in another. do i just import it? again dont give me code, just an explination.
+
+[grok.com]
+
+**No, cells are not separate files.**
+
+In Google Colab (and Jupyter notebooks in general) everything runs inside **one shared Python session** (the same kernel).  
+
+All cells share the same global namespace. That means:
+
+- A function you define in any cell becomes available to **every other cell** in the notebook.
+- You do **not** need to import anything between cells.
+- The order of the cells on the screen does **not** matter. What matters is the **order in which you actually run them**.
+
+### Why you are seeing “undefined”
+
+The most common reasons are:
+
+1. You defined the function in one cell but **never ran that cell** (or re-ran it after a change).
+2. You restarted the runtime / disconnected. When the runtime restarts, the entire namespace is wiped clean. Every definition has to be executed again.
+3. The function is defined inside another function, an `if` block, or a class, so it never entered the global namespace.
+4. A simple name typo between the definition and the place you call it.
+
+### Mental model
+
+Think of the notebook as one long Python script that you execute piece by piece.  
+Whatever has already been successfully executed stays in memory and can be used by later executions.  
+Whatever has not been executed yet (or was lost on a restart) simply does not exist yet.
+
+So the fix is almost always: make sure the cell that contains the function definition has been run in the current session before you try to call it.
+
