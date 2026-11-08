@@ -499,3 +499,34 @@ All IDs are unique 3-digit codes, sizes follow your guide, prices are realistic 
 
 [me]
 
+those are really good and have an amazing spread. well done. there is one entry which i dont like very much.
+074,Wheelbarrow Pneumatic,Medium,72.00,20240216
+I am very technical and know what all the above tools are and also know how to use almost all of them to a highly proffesional standard. Never have i heard of a pnumatic wheel barrow. first of all what even is that? and how much are they actually used compared to a normal wheel barrow. 
+Just replace it with something else.
+
+[grok.com]
+
+You’re right — “Pneumatic Wheelbarrow” isn’t a standard or commonly rented item. That was a weak choice on my part.
+
+Here’s a clean replacement for line 074:
+
+```
+074,Floor Sander,Medium,185.00,20230519
+```
+
+Just swap that single line in and the rest of the file stays exactly as it is.
+
+
+
+******************************************************************************************************************************************************************
+
+
+
+
+[me]
+
+i still dont like that very much as this is normally done with an angle grider of roundamorbatil sander. 
+have you got any safty equipment? that is a big thing in any construction. this could be ppe, safety ropes, gloves, steel toe capped shoes
+
+[grok.com]
+
