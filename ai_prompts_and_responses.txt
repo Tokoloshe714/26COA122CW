@@ -642,4 +642,45 @@ Would you like me to outline the clean hybrid structure (still without writing t
 *******************************************************************************************************************************************************************
 
 
+[me]
 
+since i have an array of type dict, and need to search according to a key in the dict, i should use the .get to be safe rather than square brakets right. or is there a better way
+
+[grok.com]
+
+**Yes — `.get()` is the safer default in most cases.**
+
+### Quick comparison
+
+| Method | Behaviour if key is missing | Typical use |
+|--------|-----------------------------|-----------|
+| `tool["Name"]` | Raises `KeyError` (crashes) | When you are **certain** the key always exists |
+| `tool.get("Name")` | Returns `None` | Safer, no crash |
+| `tool.get("Name", "")` | Returns empty string (or whatever default you give) | Best for searching / ranking |
+
+### Recommendation for your situation
+
+Since you are looping over tools and feeding values into rapidfuzz (or any string comparison), the cleanest and safest pattern is:
+
+```python
+value = tool.get("Name", "")
+```
+
+or whatever the key is.
+
+**Why this is good:**
+- Never crashes if a dictionary is somehow missing a field.
+- You always get a string, which rapidfuzz expects.
+- Still very clear and readable.
+
+### When square brackets are actually better
+
+If you **know** every dictionary is perfectly formed (because you control the loading of the text file), using `tool["Name"]` can be useful. It will immediately show you if something is wrong with the data instead of silently giving you `None` or an empty string.
+
+For a coursework project with data you generated yourself, either approach is acceptable.  
+Most people prefer `.get(key, "")` when the value is going into a search/ranking function, just to be defensive.
+
+
+
+
+*******************************************************************************************************************************************************************
